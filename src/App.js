@@ -1,21 +1,59 @@
+import { applyMiddleware, combineReducers, createStore } from 'redux';
 import React, { Component } from 'react';
-import logo from './logo.svg';
-import './App.css';
 
-class App extends Component {
-  render() {
-    return (
-      <div className="App">
-        <header className="App-header">
-          <img src={logo} className="App-logo" alt="logo" />
-          <h1 className="App-title">Welcome to React</h1>
-        </header>
-        <p className="App-intro">
-          To get started, edit <code>src/App.js</code> and save to reload.
-        </p>
+export default class App extends Component {
+  constructor(props){
+    super(props);
+    this.state={
+
+    }
+
+  }
+  componentWillMount(){
+    const userReducer = (state = {}, action)=>{
+      if(action.type === "CHANGE_NAME"){
+        let newState = {...state};
+        newState.name = action.payload;
+        return newState;
+      }else if(action.type === "CHANGE_AGE"){
+        let newState = {...state};
+        newState.age = action.payload;
+        return newState;        
+      }
+      return state;
+    }
+    const tweetReducer = (state =[], action)=>{
+      if(action.type === "UPDATE_TWEET"){
+        let newState = [...state];
+        newState["tweet"] = action.payload;
+        return newState;
+      }
+      return state;
+    }
+    const reducer = combineReducers({
+      user: userReducer,
+      tweets: tweetReducer
+    });
+    //logger middleware
+    const logger = (store)=>(next)=>(action)=>{
+      console.log("Action Fired: ", action);
+      next(action);//next has to have action as an argument 
+    }
+    const middleware = applyMiddleware(logger);
+    const store = createStore(reducer, middleware);
+    
+    store.subscribe(()=>{
+      console.log("Store changed", store.getState())
+    });
+    store.dispatch({type: "CHANGE_NAME", payload: "Steven"});
+    store.dispatch({type: "CHANGE_AGE", payload: 31});
+    store.dispatch({type: "UPDATE_TWEET", payload: "Happy birthday to me"});
+  }
+
+  render(){
+    return(
+      <div>
       </div>
-    );
+    )
   }
 }
-
-export default App;

@@ -1,0 +1,26 @@
+import React, { Component } from 'react';
+import './App.css';
+import Display from './components/Display';
+import Inputfield from './components/Inputfield';
+
+export default class App extends Component {
+  constructor(){
+    super();
+    this.state ={
+
+    }
+  }
+  showText = (e)=>{
+    this.setState({
+      daText:e
+    })
+  }
+  render() {
+    return (
+      <div>
+        <Display daText={ this.state.daText }  />
+        <Inputfield showText = { this.showText } />
+      </div>
+    );
+  }
+}
