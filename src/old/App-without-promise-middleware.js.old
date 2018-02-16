@@ -1,0 +1,83 @@
+import { applyMiddleware, createStore } from 'redux';
+import React, { Component } from 'react';
+import axios from 'axios';
+import logger from 'redux-logger';
+import thunk from 'redux-thunk';
+//import promise from 'redux-promise-middleware';
+
+export default class App extends Component {
+  constructor(props){
+    super(props);
+    this.state={
+      posting: false,
+      fetching: false,
+      received: false,
+      users: [],
+      error:null      
+    }
+
+  }
+  componentWillMount(){
+    const reducer = (state = this.state , action)=>{ 
+      switch(action.type){
+        case "SET_USER_START":{
+          return {...state,
+            posting: true
+          }
+        }
+        case "SET_USER_ERROR":{
+          return {...state,
+            posting: false,
+            error: action.payload
+          }
+        }
+        case "FETCH_USERS_START":{
+          return {...state,
+            posting: false,
+            error: null,
+            fetching: true
+          }
+        }
+        case "FETCH_USERS_ERROR":{
+          return {...state,
+            fetching: false,
+            error: action.payload
+          }
+        }
+        case "RECEIVE_USERS_START":{
+          return {...state,
+            recieved: true,
+            error: false,
+            users: action.payload
+          }
+        }
+        default:
+          return state;
+      }
+    }
+    const middleware = applyMiddleware(thunk, logger);
+    const store = createStore(reducer, middleware);
+  
+    store.dispatch((dispatch)=>{
+      dispatch({type: "SET_USER_START"});
+      axios.post("http://rest.learncode.academy/api/muganwas/friends", {name: "Unique", age: 14, village: "Cali"})
+      .then((response)=>{
+        dispatch({type: "FETCH_USERS_START"});
+        axios.get("http://rest.learncode.academy/api/muganwas/friends").then(()=>{
+          dispatch({type: "RECEIVE_USERS_START", payload: response.data });
+        }).catch((e)=>{
+          dispatch({type: "FETCH_USERS_ERROR", paload: e});
+        })
+      }).catch((e)=>{
+        dispatch({type: "SET_USER_ERROR", payload: e});
+      });
+    });
+  }
+
+  render(){
+    return(
+      <div>
+      </div>
+    )
+  }
+}

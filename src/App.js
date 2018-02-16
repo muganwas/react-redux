@@ -1,59 +1,48 @@
-import { applyMiddleware, combineReducers, createStore } from 'redux';
+
 import React, { Component } from 'react';
-
-export default class App extends Component {
-  constructor(props){
-    super(props);
-    this.state={
-
-    }
-
+import { connect } from 'react-redux';
+import { usertweets } from './components/funcs';
+import { userDits } from './components/funcs';
+@connect((store)=>{
+  return {
+    users: store.users.users,
+    usersFetched: store.users.fetched,
+    tweets: store.tweets.tweets,
+    tweetsFetched: store.tweets.fetched
   }
+})
+class App extends Component {
   componentWillMount(){
-    const userReducer = (state = {}, action)=>{
-      if(action.type === "CHANGE_NAME"){
-        let newState = {...state};
-        newState.name = action.payload;
-        return newState;
-      }else if(action.type === "CHANGE_AGE"){
-        let newState = {...state};
-        newState.age = action.payload;
-        return newState;        
-      }
-      return state;
-    }
-    const tweetReducer = (state =[], action)=>{
-      if(action.type === "UPDATE_TWEET"){
-        let newState = [...state];
-        newState["tweet"] = action.payload;
-        return newState;
-      }
-      return state;
-    }
-    const reducer = combineReducers({
-      user: userReducer,
-      tweets: tweetReducer
-    });
-    //logger middleware
-    const logger = (store)=>(next)=>(action)=>{
-      console.log("Action Fired: ", action);
-      next(action);//next has to have action as an argument 
-    }
-    const middleware = applyMiddleware(logger);
-    const store = createStore(reducer, middleware);
-    
-    store.subscribe(()=>{
-      console.log("Store changed", store.getState())
-    });
-    store.dispatch({type: "CHANGE_NAME", payload: "Steven"});
-    store.dispatch({type: "CHANGE_AGE", payload: 31});
-    store.dispatch({type: "UPDATE_TWEET", payload: "Happy birthday to me"});
+    this.props.dispatch(usertweets());
+    this.props.dispatch(userDits());
   }
-
+  displayTweets = (value)=>{
+    return(
+      <div key={ value } >
+        { value }
+      </div>
+    )
+  }
+  displayUsers = (users)=>{
+    let uKey = users.id;
+    return(
+      <div key={ uKey }>
+        { users.name } &nbsp;
+        { users.village } &nbsp;
+        { uKey }
+      </div>
+    )
+  }
   render(){
+    let aKey = this.props.tweets;
+    let uaKey = this.props.users; 
+    let users = {...(uaKey.data)};
     return(
       <div>
+        { Object.values(aKey).map(this.displayTweets) }
+        { Object.values(users).map(this.displayUsers) }
       </div>
     )
   }
 }
+export default App;
