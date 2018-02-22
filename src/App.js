@@ -3,6 +3,7 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { usertweets } from './components/funcs';
 import { userDits } from './components/funcs';
+
 @connect((store)=>{
   return {
     users: store.users.users,
